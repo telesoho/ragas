@@ -148,7 +148,7 @@ class OverlapScoreBuilder(RelationshipBuilder):
                     node_y_items = node_y_items.get(self.key_name, [])
 
                 overlaps = []
-                overlapped_items = []
+                overlapped_items = set()
                 for x in node_x_items:
                     if x not in noisy_items:
                         for y in node_y_items:
@@ -159,7 +159,8 @@ class OverlapScoreBuilder(RelationshipBuilder):
                                 verdict = similarity >= self.distance_threshold
                                 overlaps.append(verdict)
                                 if verdict:
-                                    overlapped_items.append((x, y))
+                                    overlapped_items.add(x)
+                                    overlapped_items.add(y)
 
                 similarity = self._overlap_score(overlaps)
                 if similarity >= self.threshold:
@@ -170,7 +171,7 @@ class OverlapScoreBuilder(RelationshipBuilder):
                             type=f"{self.property_name}_overlap",
                             properties={
                                 f"{self.property_name}_{self.new_property_name}": similarity,
-                                "overlapped_items": overlapped_items,
+                                "overlapped_items": list(overlapped_items),
                             },
                         )
                     )
